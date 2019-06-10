@@ -1,5 +1,6 @@
-import bs4 as bs            # bs4 library run as bs
 from urllib import request
+
+import bs4 as bs  # bs4 library run as bs
 from win10toast import ToastNotifier
 
 toaster = ToastNotifier()

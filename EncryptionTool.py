@@ -3,6 +3,7 @@
 # This was one my first versions of this script
 # 09/07/2017
 from __future__ import print_function
+
 import math
 
 try:
