@@ -36,7 +36,7 @@ class InvalidSyntax(Exception):
 
 
 # class for represent a token
-class Token():
+class Token:
     def __init__(self, token, t):
         self.token = token
         self.t = t
@@ -47,12 +47,12 @@ class Token():
 #     for i in range(9):
 #         register.append(0)
 
-def loadFile(fileName):
+def load_file(file_name):
     """
         loadFile: This function loads the file and reads its lines.
     """
     global lines
-    fo = open(fileName)
+    fo = open(file_name)
     for line in fo:
         lines.append(line)
     fo.close()
@@ -81,7 +81,7 @@ def scanner(string):
                 state = 4
                 token += 'e'
 
-            elif (ch >= '1' and ch <= '9') or ch == '-':  # catch a number
+            elif ('1' <= ch <= '9') or ch == '-':  # catch a number
 
                 state = 6
                 token += ch
@@ -129,7 +129,6 @@ def scanner(string):
             elif ch == ';':  # capture comment
 
                 state = 33
-
 
             elif ch == '"':  # catch a string
 
@@ -211,13 +210,10 @@ def scanner(string):
                 raise InvalidSyntax()
 
         elif state == 4:  # state 4
-            if (ch >= 'a' and ch <= 'd'):
-
+            if 'a' <= ch <= 'd':
                 state = 5
                 token += ch
-
             else:  # error case
-
                 state = 0
                 token = ""
                 raise InvalidSyntax()
@@ -407,7 +403,7 @@ def scanner(string):
 
         elif state == 18:  # state 18
 
-            if ch.isdigit() or (ch >= 'a' and ch <= 'f'):
+            if ch.isdigit() or ('a' <= ch <= 'f'):
 
                 state = 18
                 token += ch
@@ -591,7 +587,6 @@ def scanner(string):
                 token = ""
                 raise InvalidSyntax()
 
-
         elif state == 30:  # state 30
 
             if ch == 'p':
@@ -619,7 +614,6 @@ def scanner(string):
                 token = ""
                 raise InvalidSyntax()
 
-
         elif state == 32:  # state 32
 
             if ch.isspace():
@@ -634,14 +628,12 @@ def scanner(string):
                 token = ""
                 raise InvalidSyntax()
 
-
         elif state == 33:  # state 33
 
             if ch.isdigit() or ch.isalpha() or (ch.isspace() and ch != '\n') \
                     or ch == '"':
 
                 state = 33
-
 
             elif ch == '\n':
 
@@ -652,7 +644,6 @@ def scanner(string):
                 state = 0
                 token = ""
                 raise InvalidSyntax()
-
 
         elif state == 34:  # state 34
 
@@ -691,7 +682,6 @@ def scanner(string):
                 state = 0
                 token = ""
                 raise InvalidSyntax()
-
 
         elif state == 36:  # state 36
 
@@ -759,7 +749,7 @@ def scanner(string):
 
         elif state == 40:  # state 40
 
-            if (ch >= 'a' and ch <= 'z') or (ch >= 'A' and ch <= 'Z') or (ch >= '0' and ch <= '9'):
+            if ('a' <= ch <= 'z') or ('A' <= ch <= 'Z') or ('0' <= ch <= '9'):
 
                 state = 40
                 token += ch
@@ -776,7 +766,6 @@ def scanner(string):
                 token = ""
                 raise InvalidSyntax()
 
-
         elif state == 41:  # state 41
 
             if ch == 'l':
@@ -789,7 +778,6 @@ def scanner(string):
                 state = 0
                 token = ""
                 raise InvalidSyntax()
-
 
         elif state == 42:  # state 42
 
@@ -844,7 +832,6 @@ def scanner(string):
                 token = ""
                 raise InvalidSyntax()
 
-
         elif state == 46:  # state 46
 
             if ch.isspace():
@@ -880,7 +867,6 @@ def scanner(string):
                 tokens.append(Token(token, "command"))
                 token = ""
 
-
             else:  # error case
 
                 state = 0
@@ -900,7 +886,6 @@ def scanner(string):
                 token = ""
                 raise InvalidSyntax()
 
-
         elif state == 50:  # state 50
 
             if ch.isspace():
@@ -908,7 +893,6 @@ def scanner(string):
                 state = 0
                 tokens.append(Token(token, "command"))
                 token = ""
-
 
             else:  # error case
 
@@ -935,14 +919,14 @@ def parser():
         parser: parses the tokens of the list 'tokens'
     """
 
-    global tokens
+    global tokens, zero_flag
     global eax, ebx, ecx, edx
 
     assert len(tokens) > 0, "no tokens"
 
     pointer = 0  # pointer for tokens
     token = Token("", "")
-    tmpToken = Token("", "")
+    tmp_token = Token("", "")
 
     while pointer < len(tokens):
 
@@ -961,7 +945,7 @@ def parser():
             # TODO use token.t for this stuff
             if token.t == "register":
 
-                tmpToken = token
+                tmp_token = token
 
                 # it must follow a value / string / register / variable
                 if pointer + 1 < len(tokens):
@@ -1000,13 +984,13 @@ def parser():
                     elif token.token == "edx":
                         token.token = edx
 
-                if tmpToken.token == "eax":
+                if tmp_token.token == "eax":
                     eax = token.token
-                elif tmpToken.token == "ebx":
+                elif tmp_token.token == "ebx":
                     ebx = token.token
-                elif tmpToken.token == "ecx":
+                elif tmp_token.token == "ecx":
                     ecx = token.token
-                elif tmpToken.token == "edx":
+                elif tmp_token.token == "edx":
                     edx = token.token
 
             else:
@@ -1021,7 +1005,7 @@ def parser():
 
             if token.t == "register":
 
-                tmpToken = token
+                tmp_token = token
 
                 if pointer + 1 < len(tokens):
                     pointer += 1
@@ -1052,40 +1036,38 @@ def parser():
                     print("Error: ", token, " is not a number!")
                     return
 
-                if tmpToken.token == "eax":
+                if tmp_token.token == "eax":
                     eax += token.token
 
                     # update zero flag
                     if eax == 0:
-                        zeroFlag = True
+                        zero_flag = True
                     else:
-                        zeroFlag = False
-                elif tmpToken.token == "ebx":
+                        zero_flag = False
+                elif tmp_token.token == "ebx":
                     ebx += token.token
 
                     # update zero flag
                     if ebx == 0:
-                        zeroFlag = True
+                        zero_flag = True
                     else:
-                        zeroFlag = False
-                elif tmpToken.token == "ecx":
+                        zero_flag = False
+                elif tmp_token.token == "ecx":
                     ecx += token.token
 
                     # update zero flag
                     if ecx == 0:
-                        zeroFlag = True
+                        zero_flag = True
                     else:
-                        zeroFlag = False
-                elif tmpToken.token == "edx":
+                        zero_flag = False
+                elif tmp_token.token == "edx":
                     edx += token.token
 
                     # update zero flag
                     if edx == 0:
-                        zeroFlag = True
+                        zero_flag = True
                     else:
-                        zeroFlag = False
-
-
+                        zero_flag = False
 
             else:
 
@@ -1099,7 +1081,7 @@ def parser():
 
             if token.t == "register":
 
-                tmpToken = token
+                tmp_token = token
 
                 if pointer + 1 < len(tokens):
                     pointer += 1
@@ -1132,38 +1114,38 @@ def parser():
                     print("Error: ", token.token, " is not a number!")
                     return
 
-                if tmpToken.token == "eax":
+                if tmp_token.token == "eax":
                     eax -= token.token
 
                     # update zero flag
                     if eax == 0:
-                        zeroFlag = True
+                        zero_flag = True
                     else:
-                        zeroFlag = False
-                elif tmpToken.token == "ebx":
+                        zero_flag = False
+                elif tmp_token.token == "ebx":
                     ebx -= token.token
 
                     # update zero flag
                     if ebx == 0:
-                        zeroFlag = True
+                        zero_flag = True
                     else:
-                        zeroFlag = False
-                elif tmpToken.token == "ecx":
+                        zero_flag = False
+                elif tmp_token.token == "ecx":
                     ecx -= token.token
 
                     # update zero flag
                     if ecx == 0:
-                        zeroFlag = True
+                        zero_flag = True
                     else:
-                        zeroFlag = False
-                elif tmpToken.token == "edx":
+                        zero_flag = False
+                elif tmp_token.token == "edx":
                     edx -= token.token
 
                     # update zero flag
                     if edx == 0:
-                        zeroFlag = True
+                        zero_flag = True
                     else:
-                        zeroFlag = False
+                        zero_flag = False
 
             else:
 
@@ -1172,7 +1154,7 @@ def parser():
 
         elif token.token == "int":  # int commando
 
-            tmpToken = token
+            tmp_token = token
 
             if pointer + 1 < len(tokens):
                 pointer += 1
@@ -1200,10 +1182,9 @@ def parser():
 
                     print(ecx)
 
-
         elif token.token == "push":  # push commando
 
-            tmpToken = token
+            tmp_token = token
 
             # it must follow a register
             if pointer + 1 < len(tokens):
@@ -1230,10 +1211,9 @@ def parser():
 
                 stack.append(edx)
 
-
         elif token.token == "pop":  # pop commando
 
-            tmpToken = token
+            tmp_token = token
 
             # it must follow a register
             if pointer + 1 < len(tokens):
@@ -1281,7 +1261,6 @@ def parser():
             else:
                 print("Error: expected a label!")
 
-
         elif token.token == "cmp":
             # TODO
 
@@ -1298,7 +1277,7 @@ def parser():
                 # it must follow a register
                 if pointer + 1 < len(tokens):
                     pointer += 1
-                    tmpToken = tokens[pointer]  # next register
+                    tmp_token = tokens[pointer]  # next register
                 else:
                     print("Error: Not found register!")
                     return
@@ -1306,132 +1285,127 @@ def parser():
                 # actual comparing
                 if token.token == "eax":
 
-                    if tmpToken.token == "eax":
+                    if tmp_token.token == "eax":
 
                         if eax == eax:
-                            zeroFlag = True
+                            zero_flag = True
                         else:
-                            zeroFlag = False
+                            zero_flag = False
 
-                    elif tmpToken.token == "ebx":
+                    elif tmp_token.token == "ebx":
 
                         if eax == ebx:
-                            zeroFlag = True
+                            zero_flag = True
                         else:
-                            zeroFlag = False
+                            zero_flag = False
 
-                    elif tmpToken.token == "ecx":
+                    elif tmp_token.token == "ecx":
 
                         if eax == ecx:
-                            zeroFlag = True
+                            zero_flag = True
                         else:
-                            zeroFlag = False
+                            zero_flag = False
 
-                    elif tmpToken.token == "edx":
+                    elif tmp_token.token == "edx":
 
                         if eax == edx:
-                            zeroFlag = True
+                            zero_flag = True
                         else:
-                            zeroFlag = False
-
+                            zero_flag = False
 
                 elif token.token == "ebx":
 
-                    if tmpToken.token == "eax":
+                    if tmp_token.token == "eax":
 
                         if ebx == eax:
-                            zeroFlag = True
+                            zero_flag = True
                         else:
-                            zeroFlag = False
+                            zero_flag = False
 
-                    elif tmpToken.token == "ebx":
+                    elif tmp_token.token == "ebx":
 
                         if ebx == ebx:
-                            zeroFlag = True
+                            zero_flag = True
                         else:
-                            zeroFlag = False
+                            zero_flag = False
 
-                    elif tmpToken.token == "ecx":
+                    elif tmp_token.token == "ecx":
 
                         if ebx == ecx:
-                            zeroFlag = True
+                            zero_flag = True
                         else:
-                            zeroFlag = False
+                            zero_flag = False
 
-                    elif tmpToken.token == "edx":
+                    elif tmp_token.token == "edx":
 
                         if ebx == edx:
-                            zeroFlag = True
+                            zero_flag = True
                         else:
-                            zeroFlag = False
-
+                            zero_flag = False
 
                 elif token.token == "ecx":
 
-                    if tmpToken.token == "eax":
+                    if tmp_token.token == "eax":
 
                         if ecx == eax:
-                            zeroFlag = True
+                            zero_flag = True
                         else:
-                            zeroFlag = False
+                            zero_flag = False
 
-                    elif tmpToken.token == "ebx":
+                    elif tmp_token.token == "ebx":
 
                         if ecx == ebx:
-                            zeroFlag = True
+                            zero_flag = True
                         else:
-                            zeroFlag = False
+                            zero_flag = False
 
-                    elif tmpToken.token == "ecx":
+                    elif tmp_token.token == "ecx":
 
                         if ecx == ecx:
-                            zeroFlag = True
+                            zero_flag = True
                         else:
-                            zeroFlag = False
+                            zero_flag = False
 
-                    elif tmpToken.token == "edx":
+                    elif tmp_token.token == "edx":
 
                         if ecx == edx:
-                            zeroFlag = True
+                            zero_flag = True
                         else:
-                            zeroFlag = False
-
+                            zero_flag = False
 
                 elif token.token == "edx":
 
-                    if tmpToken.token == "eax":
+                    if tmp_token.token == "eax":
 
                         if edx == eax:
-                            zeroFlag = True
+                            zero_flag = True
                         else:
-                            zeroFlag = False
+                            zero_flag = False
 
-                    elif tmpToken.token == "ebx":
+                    elif tmp_token.token == "ebx":
 
                         if edx == ebx:
-                            zeroFlag = True
+                            zero_flag = True
                         else:
-                            zeroFlag = False
+                            zero_flag = False
 
-                    elif tmpToken.token == "ecx":
+                    elif tmp_token.token == "ecx":
 
                         if edx == ecx:
-                            zeroFlag = True
+                            zero_flag = True
                         else:
-                            zeroFlag = False
+                            zero_flag = False
 
-                    elif tmpToken.token == "edx":
+                    elif tmp_token.token == "edx":
 
                         if edx == edx:
-                            zeroFlag = True
+                            zero_flag = True
                         else:
-                            zeroFlag = False
-
+                            zero_flag = False
 
             else:
                 print("Error: Not found register!")
                 return
-
 
         elif token.token == "je":
 
@@ -1447,14 +1421,13 @@ def parser():
             if token.t == "label":
 
                 # actual jump
-                if zeroFlag:
+                if zero_flag:
                     pointer = jumps[token.token]
 
             else:
 
                 print("Error: Not found label")
                 return
-
 
         elif token.t == "identifier":
 
@@ -1464,28 +1437,27 @@ def parser():
                 # it must follow a command
                 if pointer + 1 < len(tokens):
                     pointer += 1
-                    tmpToken = tokens[pointer]  # next register
+                    tmp_token = tokens[pointer]  # next register
                 else:
                     print("Error: Not found argument")
                     return
 
-                if tmpToken.t == "command" and tmpToken.token == "db":
+                if tmp_token.t == "command" and tmp_token.token == "db":
 
                     # it must follow a value (string)
                     if pointer + 1 < len(tokens):
                         pointer += 1
-                        tmpToken = tokens[pointer]  # next register
+                        tmp_token = tokens[pointer]  # next register
                     else:
                         print("Error: Not found argument")
                         return
 
-                    if tmpToken.t == "value" or tmpToken.t == "string":
+                    if tmp_token.t == "value" or tmp_token.t == "string":
 
-                        if tmpToken.t == "value":
-                            variables[token.token] = float(tmpToken.token)
-                        elif tmpToken.t == "string":
-                            variables[token.token] = tmpToken.token
-
+                        if tmp_token.t == "value":
+                            variables[token.token] = float(tmp_token.token)
+                        elif tmp_token.t == "string":
+                            variables[token.token] = tmp_token.token
 
                 else:
 
@@ -1521,7 +1493,6 @@ def parser():
                 print("Error: Not found subprogram")
                 return
 
-
         elif token.token == "ret":  # catch the ret-command
 
             if len(returnStack) >= 1:
@@ -1536,7 +1507,6 @@ def parser():
         elif token.t == "subprogram":
 
             pass
-
 
         elif token.token == "mul":  # catch mul-command
 
@@ -1570,8 +1540,6 @@ def parser():
 
                 print("Error: Not found register")
                 return
-
-
 
         elif token.token == "div":
 
@@ -1610,7 +1578,7 @@ def parser():
         pointer += 1
 
 
-def registerLabels():
+def register_labels():
     """
         This function search for labels / subprogram-labels and register this in the 'jumps' list.
     """
@@ -1621,7 +1589,7 @@ def registerLabels():
             jumps[tokens[i].token] = i
 
 
-def resetInterpreter():
+def reset_interpreter():
     """
         resets the interpreter mind.
     """
@@ -1654,19 +1622,14 @@ def main():
 
     # [1:] because the first argument is the program itself.
     for arg in sys.argv[1:]:
-
-        resetInterpreter()  # resets interpreter mind
-
+        reset_interpreter()  # resets interpreter mind
         try:
-
-            loadFile(arg)
+            load_file(arg)
             scan()
-            registerLabels()
+            register_labels()
             parser()
-
         except:
-
-            print("Error: File %s not found!" % (arg))
+            print("Error: File %s not found!" % arg)
 
 
 if __name__ == "__main__":
